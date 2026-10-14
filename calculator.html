@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1020">
+  <title>Калькулятор — Nova</title>
+
+  <!-- Иконки Font Awesome Free -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c1020;
+      --surface: #161b2c;
+      --surface-2: #20263a;
+      --text: #f5f7ff;
+      --muted: #939db8;
+      --accent: #a68aff;
+      --outline: rgba(255,255,255,.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse 50% 40% at 20% 15%, rgba(105, 78, 214, .20), transparent 80%),
+        radial-gradient(ellipse 45% 40% at 85% 90%, rgba(53, 168, 211, .12), transparent 80%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .calculator {
+      width: min(100%, 390px);
+      padding: 24px;
+      border: 1px solid var(--outline);
+      border-radius: 30px;
+      background: linear-gradient(150deg, rgba(28, 33, 55, .98), rgba(16, 21, 37, .98));
+      box-shadow: 0 28px 75px rgba(0, 0, 0, .34), inset 0 1px 0 rgba(255, 255, 255, .055);
+    }
+
+    .header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-icon {
+      width: 39px;
+      height: 39px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(166, 138, 255, .2);
+      border-radius: 13px;
+      background: rgba(166, 138, 255, .12);
+      color: #b6a1ff;
+    }
+    .brand strong { display: block; font-size: 15px; letter-spacing: .015em; }
+    .brand small { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+    .mode { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .13em; }
+
+    .screen {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-end;
+      min-height: 168px;
+      padding: 28px 2px 22px;
+      text-align: right;
+      overflow: hidden;
+    }
+    .expression {
+      min-height: 22px;
+      max-width: 100%;
+      color: var(--muted);
+      font-size: 15px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .result {
+      margin-top: 10px;
+      width: 100%;
+      min-height: 55px;
+      color: var(--text);
+      font-size: clamp(35px, 9vw, 48px);
+      font-weight: 600;
+      letter-spacing: -.055em;
+      line-height: 1.2;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-variant-numeric: tabular-nums;
+    }
+    .rule { height: 1px; margin-bottom: 20px; background: var(--outline); }
+
+    .keys { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px; }
+    .key {
+      min-width: 0;
+      height: 68px;
+      border: 1px solid rgba(255,255,255,.035);
+      border-radius: 17px;
+      background: var(--surface-2);
+      color: var(--text);
+      font: inherit;
+      font-size: 24px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .16s ease, transform .12s ease, border-color .16s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .key:hover { background: #2a314b; border-color: rgba(255,255,255,.10); }
+    .key:active { transform: scale(.94); }
+    .key:focus-visible { outline: 2px solid #c9baff; outline-offset: 3px; }
+    .key i { font-size: 19px; }
+    .key--tool { background: #2b2a45; color: #c7baff; font-size: 18px; font-weight: 650; }
+    .key--operator { background: #272447; color: #c0adff; }
+    .key--operator[aria-pressed="true"] { background: #514080; color: #fff; border-color: #9278d4; }
+    .key--equal {
+      border-color: transparent;
+      background: linear-gradient(140deg, #ad91ff 0%, #8a74f7 100%);
+      color: #101127;
+      box-shadow: 0 7px 20px rgba(151, 114, 255, .22);
+    }
+    .key--equal:hover { background: linear-gradient(140deg, #bea7ff 0%, #9d8afa 100%); }
+    .key--equal i { font-size: 22px; }
+
+    .footer { margin-top: 20px; text-align: center; color: #77829f; font-size: 11px; }
+    .footer kbd { font: inherit; color: #adb5ce; }
+
+    @media (max-width: 420px) {
+      body { padding: 12px; }
+      .calculator { padding: 18px; border-radius: 25px; }
+      .keys { gap: 9px; }
+      .key { height: clamp(56px, 15vw, 68px); border-radius: 14px; }
+      .screen { min-height: 150px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .key { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="calculator" aria-label="Калькулятор">
+    <header class="header">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true"><i class="fa-solid fa-calculator"></i></span>
+        <div><strong>NOVA</strong><small>Калькулятор</small></div>
+      </div>
+      <span class="mode">STANDARD</span>
+    </header>
+
+    <section class="screen" aria-label="Экран калькулятора">
+      <div class="expression" id="expression" aria-label="Выражение"></div>
+      <output name="calc" class="result" id="result" aria-live="polite" aria-atomic="true">0</output>
+    </section>
+
+    <div class="rule"></div>
+
+    <div class="keys" id="keys">
+      <button type="button" class="key key--tool key--esc" aria-label="Очистить всё">AC</button>
+      <button type="button" class="key key--tool key--clear" aria-label="Удалить последний символ"><i class="fa-solid fa-delete-left" aria-hidden="true"></i></button>
+      <button type="button" class="key key--tool" data-value="%"  aria-label="Процент"><i class="fa-solid fa-percent" aria-hidden="true"></i></button>
+      <button type="button" class="key key--operator" data-value="/" aria-label="Разделить" aria-pressed="false"><i class="fa-solid fa-divide" aria-hidden="true"></i></button>
+
+      <button type="button" class="key" data-value="7">7</button>
+      <button type="button" class="key" data-value="8">8</button>
+      <button type="button" class="key" data-value="9">9</button>
+      <button type="button" class="key key--operator" data-value="*" aria-label="Умножить" aria-pressed="false"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+
+      <button type="button" class="key" data-value="4">4</button>
+      <button type="button" class="key" data-value="5">5</button>
+      <button type="button" class="key" data-value="6">6</button>
+      <button type="button" class="key key--operator" data-value="-" aria-label="Вычесть" aria-pressed="false"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
+
+      <button type="button" class="key" data-value="1">1</button>
+      <button type="button" class="key" data-value="2">2</button>
+      <button type="button" class="key" data-value="3">3</button>
+      <button type="button" class="key key--operator" data-value="+" aria-label="Прибавить" aria-pressed="false"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+
+      <button type="button" class="key" data-value="00">00</button>
+      <button type="button" class="key" data-value="0">0</button>
+      <button type="button" class="key" data-value="." aria-label="Десятичная запятая">,</button>
+      <button type="button" class="key key--equal" aria-label="Равно"><i class="fa-solid fa-equals" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="footer"><kbd>Enter</kbd> — равно &nbsp;·&nbsp; <kbd>Esc</kbd> — очистить</div>
+  </main>
+
+  <script>
+    const buttons = document.querySelectorAll('.key');
+    const output = document.getElementById('result');
+    const expressionDiv = document.getElementById('expression');
+    const operators = ['-','+','*',"%","/"];
+    let calcStatus = false;
+
+    const expressionOutput = function(expression){
+      return expressionDiv.textContent = expression;
+    }
+
+    const clearAll = function(){
+      output.textContent = 0;
+      expressionDiv.textContent = '';
+      calcStatus = false;
+    }
+
+    const clear = function (expression){
+      if(expression.length - 1 > 0 && expression.length - 1 !== 0){
+        output.textContent = expression.slice(0,expression.length - 1);
+      }else{
+        output.textContent = 0;
+      }
+      
+    }
+
+    const equal = function(expression,operators){
+      let Index = -1;
+      let operator = '';
+      for (const el of operators) {
+        let operatorIndex = expression.indexOf(el);
+        if(operatorIndex !== -1){
+          if(operatorIndex > Index && operatorIndex !== Index){
+            Index = operatorIndex;
+            operator = el;
+            break;
+          }
+        }
+      }
+      const a = +expression.substring(0, Index);
+      let b = expression.substring(Index+1, expression.length);
+      if(b.includes('%')){
+      b = b.substring(0, b.length-1); 
+      b = +b/100;
+      }else{
+        b = +b;
+      }     
+      switch(operator){
+        case '-':
+          calcStatus = true;
+          expressionOutput(expression);
+          output.textContent = a - b;
+          break;
+        case '+':
+          calcStatus = true;
+          expressionOutput(expression);
+          output.textContent = a + b;
+          break;
+        case '*':
+          calcStatus = true;
+          expressionOutput(expression);
+          output.textContent = a * b;
+          break;
+        case '%':
+          calcStatus = true;
+          expressionOutput(expression);
+          if(b == 0){
+            output.textContent = a/100;
+          }else{
+           output.textContent = a/100 * b; 
+          }
+          
+          break;
+        case '/':
+          if(a == 0 || b == 0){
+            calcStatus = false;
+            output.textContent = 'на 0 делить нельзя';
+            break;
+          }else{
+          calcStatus = true;
+          expressionOutput(expression);
+          output.textContent = a / b;
+          break;
+          }
+
+      }
+    }
+    
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', function(e){
+        
+        if(this.classList.contains('key--equal')){
+         equal(output.textContent,operators);
+         return;
+        }
+        
+        if(this.classList.contains('key--esc')){
+          clearAll();
+         return;
+        }
+
+        if(this.classList.contains('key--clear')){
+          clear(output.textContent);
+         return;
+        }
+
+        if (this.dataset.value === undefined) return;
+
+        if (this.dataset.value === '.') {
+         
+         const killdots = output.textContent.split(/[+*/%-]/).pop();
+          console.log(killdots);
+          if (killdots.includes('.')) return;
+        }
+
+        if (this.dataset.value === '00') {
+        if (output.textContent === '0' || output.textContent === '') return;
+          output.textContent += '00';
+          calcStatus = false;
+          return;
+        }
+
+        if (calcStatus) {
+        output.textContent += this.dataset.value;
+        calcStatus = false;
+        return;
+        }
+
+        if(+output.textContent === 0 ){
+          output.textContent = this.dataset.value;
+          }else{
+          output.textContent += this.dataset.value;  
+        }
+        
+      })  
+    });
+
+    document.addEventListener('keydown', function(event) {
+
+    document.querySelector(`.key[data-value="${event.key}"]`)?.click();
+
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      equal(output.textContent,operators);
+      
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      clearAll();
+    }
+
+
+});
+
+  </script>
+</body>
+</html>
