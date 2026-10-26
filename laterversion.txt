@@ -1,0 +1,48 @@
+const buttons = document.querySelectorAll('.key');    
+buttons.forEach(btn = {
+      btn.addEventListener('click', function(e){
+        
+        if(this.classList.contains('key--equal')){
+         equal(output.textContent,operators);
+         return;
+        }
+        
+        if(this.classList.contains('key--esc')){
+          clearAll();
+         return;
+        }
+
+        if(this.classList.contains('key--clear')){
+          clear(output.textContent);
+         return;
+        }
+
+        if (this.dataset.value === undefined) return;
+
+        if (this.dataset.value === '.') {
+         
+          const killdots = output.textContent.split([+%-]).pop();
+         if (killdots.includes('.')) return;
+        }
+
+        if (this.dataset.value === '00') {
+        if (output.textContent === '0'  output.textContent === '') return;
+          output.textContent += '00';
+          calcStatus = false;
+          return;
+        }
+
+        if (calcStatus) {
+        output.textContent += this.dataset.value;
+        calcStatus = false;
+        return;
+        }
+
+        if(+output.textContent === 0 ){
+          output.textContent = this.dataset.value;
+          }else{
+          output.textContent += this.dataset.value;  
+        }
+        
+      })  
+    });

@@ -193,7 +193,7 @@
   </main>
 
   <script>
-    const buttons = document.querySelectorAll('.key');
+    const buttons = document.getElementById('keys');
     const output = document.getElementById('result');
     const expressionDiv = document.getElementById('expression');
     const operators = ['-','+','*',"%","/"];
@@ -279,56 +279,52 @@
 
       }
     }
-    
 
-    buttons.forEach(btn => {
-      btn.addEventListener('click', function(e){
-        
-        if(this.classList.contains('key--equal')){
+    buttons.onclick = function(e){
+      let target = e.target;
+
+      if(target.classList.contains('key--equal')){
          equal(output.textContent,operators);
          return;
         }
         
-        if(this.classList.contains('key--esc')){
+        if(target.classList.contains('key--esc')){
           clearAll();
          return;
         }
 
-        if(this.classList.contains('key--clear')){
+        if(target.classList.contains('key--clear')){
           clear(output.textContent);
          return;
         }
 
-        if (this.dataset.value === undefined) return;
+      if (target.dataset.value === undefined) return;
 
-        if (this.dataset.value === '.') {
-         
-         const killdots = output.textContent.split(/[+*/%-]/).pop();
-          console.log(killdots);
-          if (killdots.includes('.')) return;
-        }
+      if (target.dataset.value === '.') {
+      const killdots = output.textContent.split(/[+*/%-]/).pop();
+      if (killdots.includes('.')) return;
+      }
 
-        if (this.dataset.value === '00') {
+      if (target.dataset.value === '00') {
         if (output.textContent === '0' || output.textContent === '') return;
           output.textContent += '00';
           calcStatus = false;
           return;
         }
 
-        if (calcStatus) {
-        output.textContent += this.dataset.value;
+      if (calcStatus) {
+        output.textContent += target.dataset.value;
         calcStatus = false;
         return;
         }
 
-        if(+output.textContent === 0 ){
-          output.textContent = this.dataset.value;
+      if(+output.textContent === 0 ){
+          output.textContent = target.dataset.value;
           }else{
-          output.textContent += this.dataset.value;  
-        }
-        
-      })  
-    });
+          output.textContent += target.dataset.value;  
+      }
+
+    };
 
     document.addEventListener('keydown', function(event) {
 
